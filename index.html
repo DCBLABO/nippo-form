@@ -489,7 +489,7 @@
         <div class="seg" role="radiogroup" aria-label="勤務区分">
           <label><input type="radio" name="shift" value="day" checked>日勤</label>
           <label><input type="radio" name="shift" value="night">夜勤</label>
-          <label><input type="radio" name="shift" value="night-morning">夜勤〜翌朝</label>
+          <label><input type="radio" name="shift" value="day-night">日勤〜夜勤</label>
         </div>
       </div>
       <div class="row">
@@ -806,6 +806,12 @@
         return {
           head: a + '夜勤〜' + b + '朝 日報',
           foot: '以上、' + a + '夜勤〜' + b + '朝の日報です。'
+        };
+      }
+      if (kind === 'day-night') {
+        return {
+          head: a + '日勤〜夜勤報告',
+          foot: '以上、' + a + 'の日勤〜夜勤報告です。'
         };
       }
       if (kind === 'night') {
