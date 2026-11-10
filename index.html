@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#F3EBE3">
+  <meta name="robots" content="noindex,nofollow">
+  <title>グループホーム日報</title>
+  <style>
+    :root {
+      --bg: #F3EBE3;
+      --bg-2: #E8DCD0;
+      --paper: #FFFBF7;
+      --ink: #3A3129;
+      --muted: #7A6B5D;
+      --line: #E6D9CC;
+      --accent: #C45D3E;
+      --accent-dark: #A3472C;
+      --accent-soft: #F8E6DF;
+      --sage: #3F6E4E;
+      --sage-soft: #E3F0E6;
+      --gold: #9A6B32;
+      --danger: #A33B3B;
+      --shadow: 0 2px 12px rgba(80, 50, 30, 0.08);
+      --radius: 16px;
+      --tap: 46px;
+      --safe-b: env(safe-area-inset-bottom, 0px);
+      --safe-t: env(safe-area-inset-top, 0px);
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: rgba(196, 93, 62, 0.18); }
+    html, body { margin: 0; padding: 0; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body {
+      font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", YuGothic, "Helvetica Neue", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.55;
+      font-size: 16px;
+      padding-bottom: calc(92px + var(--safe-b));
+    }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    img { max-width: 100%; }
+
+    .wrap { max-width: 520px; margin: 0 auto; padding: 0 14px 24px; }
+
+    header.app-header {
+      padding: calc(14px + var(--safe-t)) 4px 12px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    header.app-header h1 {
+      margin: 0;
+      font-size: 1.22rem;
+      letter-spacing: 0.02em;
+      font-weight: 700;
+    }
+    header.app-header p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+    .icon-btn {
+      flex: none;
+      width: var(--tap);
+      height: var(--tap);
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      display: grid;
+      place-items: center;
+      color: var(--ink);
+    }
+    .icon-btn:focus-visible, .btn:focus-visible, .seg label:focus-within,
+    input:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px 14px 16px;
+      margin: 0 0 12px;
+    }
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .field { margin: 0 0 12px; }
+    .field:last-child { margin-bottom: 0; }
+    .field > label, .lbl {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+      margin: 0 0 6px;
+      letter-spacing: 0.04em;
+    }
+    .row { display: flex; gap: 10px; }
+    .row > .field { flex: 1; min-width: 0; }
+
+    .ctrl, textarea, select {
+      width: 100%;
+      min-height: var(--tap);
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+    select, input[type="text"], input[type="number"], textarea {
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    input[type="date"], input[type="time" lang="ja"] {
+      appearance: auto;
+      -webkit-appearance: auto;
+      min-width: 0;
+    }
+    textarea {
+      min-height: 88px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+    select {
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'><path fill='%237A6B5D' d='M4 6l4 5 4-5z'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 32px;
+    }
+    input[type="date"], input[type="time" lang="ja"], input[type="number"] { min-height: var(--tap); }
+    input[type="checkbox"], input[type="radio"] {
+      width: 22px;
+      height: 22px;
+      accent-color: var(--accent);
+      flex: none;
+      margin: 0;
+    }
+
+    .hint {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+    .ja-date {
+      margin-top: 6px;
+      font-size: 0.88rem;
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    .seg {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.3fr;
+      gap: 6px;
+    }
+    .seg label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-height: var(--tap);
+      padding: 6px 4px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      font-size: 0.86rem;
+      font-weight: 700;
+      cursor: pointer;
+      user-select: none;
+    }
+    .seg label:has(input:checked) {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent-dark);
+    }
+    .seg input { position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0; }
+
+    .end-date { display: none; }
+    body.shift-night-morning .end-date { display: block; }
+
+    details.resident {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin: 0 0 10px;
+      overflow: hidden;
+    }
+    details.resident > summary {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 56px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 700;
+      user-select: none;
+    }
+    details.resident > summary::-webkit-details-marker { display: none; }
+    details.resident > summary .chev {
+      margin-left: auto;
+      color: var(--muted);
+      transition: transform 0.15s;
+    }
+    details.resident[open] > summary .chev { transform: rotate(180deg); }
+    .badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--bg-2);
+      color: var(--muted);
+    }
+    .badge.done { background: var(--sage-soft); color: var(--sage); }
+    .badge.ok { background: var(--accent-soft); color: var(--accent-dark); }
+    .res-body { padding: 0 14px 16px; border-top: 1px solid var(--line); }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: var(--tap);
+      padding: 4px 0;
+      font-weight: 700;
+    }
+    .checks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: var(--tap);
+      padding: 6px 12px 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      font-weight: 600;
+    }
+    .chip:has(input:checked) {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+    .meds { display: grid; gap: 8px; }
+    .med {
+      display: grid;
+      grid-template-columns: 1fr 120px;
+      gap: 8px;
+      align-items: center;
+    }
+    .med .chip { width: 100%; }
+
+    .empty-res {
+      text-align: center;
+      padding: 22px 12px;
+      color: var(--muted);
+    }
+
+    .ho-item {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fff;
+      margin: 0 0 10px;
+    }
+    .ho-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-weight: 700;
+      font-size: 0.86rem;
+    }
+    .linkish {
+      border: 0;
+      background: none;
+      color: var(--danger);
+      font-weight: 700;
+      padding: 8px;
+      min-height: 40px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: var(--tap);
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+      font-weight: 700;
+    }
+    .btn-block { width: 100%; }
+    .btn-accent {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .btn-accent:disabled { opacity: 0.45; }
+    .btn-sage {
+      background: var(--sage);
+      border-color: var(--sage);
+      color: #fff;
+    }
+    .btn-ghost { background: transparent; }
+
+    .preview-box {
+      background: #fff;
+      border: 1px dashed #d3c2b2;
+      border-radius: 12px;
+      padding: 14px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.7;
+      min-height: 120px;
+      color: var(--ink);
+    }
+    .preview-box.is-empty { color: var(--muted); }
+
+    .dock {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      background: rgba(243, 235, 227, 0.94);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-top: 1px solid var(--line);
+      padding: 10px 14px calc(10px + var(--safe-b));
+      z-index: 20;
+    }
+    .dock-inner {
+      max-width: 520px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+    }
+    .dock .btn { min-height: 52px; font-size: 1.02rem; }
+    .side-actions { display: flex; flex-direction: column; gap: 6px; }
+    .side-actions .btn, .side-actions a.btn {
+      min-height: 36px;
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(88px + var(--safe-b));
+      transform: translateX(-50%) translateY(12px);
+      background: var(--ink);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.2s ease;
+      z-index: 40;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .banner {
+      background: var(--accent-soft);
+      border: 1px solid #e8c4b6;
+      color: var(--accent-dark);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin: 0 0 12px;
+      font-size: 0.86rem;
+      display: none;
+    }
+    .banner.show { display: block; }
+    .banner .btns { display: flex; gap: 8px; margin-top: 8px; }
+
+    /* modal */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(40, 28, 20, 0.45);
+      z-index: 50;
+      padding: calc(12px + var(--safe-t)) 12px calc(12px + var(--safe-b));
+      overflow: auto;
+    }
+    .overlay.show { display: block; }
+    .modal {
+      background: var(--paper);
+      border-radius: 18px;
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 16px 16px 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.18);
+    }
+    .modal h2 { margin: 0 0 6px; font-size: 1.1rem; }
+    .res-edit {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0 0 8px;
+    }
+    .res-edit span {
+      flex: 1;
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      font-weight: 700;
+    }
+    .tiny {
+      width: 42px;
+      height: 42px;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 10px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+    .add-row { display: flex; gap: 8px; margin-top: 4px; }
+
+    .muted { color: var(--muted); }
+    .sr-only {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="app-header">
+      <div>
+        <h1>📒 グループホーム日報</h1>
+        <p>空欄を埋めたら下の「コピーする」を押して、LINEグループに貼り付けてください。入力は携帯電話の中だけに残ります。</p>
+      </div>
+      <button type="button" class="icon-btn" id="open-settings" aria-label="設定">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9c.3.7 1 1.1 1.6 1.1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>
+        </svg>
+      </button>
+    </header>
+
+    <div class="banner" id="draft-banner" role="status">
+      <div id="draft-banner-text"></div>
+      <div class="btns">
+        <button type="button" class="btn" id="keep-draft">この下書きを続ける</button>
+        <button type="button" class="btn" id="fresh-draft">今日の分から始める</button>
+      </div>
+    </div>
+
+    <section class="card" id="header-card">
+      <h2>基本情報</h2>
+      <div class="field">
+        <label for="home">ホーム名</label>
+        <input class="ctrl" id="home" type="text" placeholder="ホーム名" autocomplete="off">
+      </div>
+      <div class="field">
+        <span class="lbl">勤務区分</span>
+        <div class="seg" role="radiogroup" aria-label="勤務区分">
+          <label><input type="radio" name="shift" value="day" checked>日勤</label>
+          <label><input type="radio" name="shift" value="night">夜勤</label>
+          <label><input type="radio" name="shift" value="night-morning">夜勤〜翌朝</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="date" id="date-label">日付</label>
+          <input class="ctrl" id="date" type="date" required lang="ja">
+          <div class="ja-date" id="date-ja"></div>
+        </div>
+        <div class="field end-date">
+          <label for="date-end">翌朝の日付</label>
+          <input class="ctrl" id="date-end" type="date" lang="ja">
+          <div class="ja-date" id="date-end-ja"></div>
+        </div>
+      </div>
+      <div class="field">
+        <label for="reporter">記入者名</label>
+        <input class="ctrl" id="reporter" type="text" placeholder="記入した方の名前" autocomplete="name">
+      </div>
+    </section>
+
+    <section id="residents-section">
+      <h2 class="sr-only">利用者さんごとの様子</h2>
+      <div id="residents-list"></div>
+      <div class="empty-res card" id="no-residents" hidden>
+        まだ利用者さんが登録されていません。<br>
+        右上の設定から追加するか、リンクの指定で読み込めます。
+        <div style="margin-top:12px">
+          <button type="button" class="btn btn-accent" id="open-settings-2">設定を開く</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="shared-card">
+      <h2>🧹 環境整備・購入品</h2>
+      <div class="field">
+        <span class="lbl">環境整備</span>
+        <div class="checks" id="env-presets"></div>
+      </div>
+      <div class="field">
+        <label for="env-note">環境整備（自由記入）</label>
+        <textarea id="env-note" placeholder="そのほかに行ったこと"></textarea>
+      </div>
+      <div class="field">
+        <label for="purchase">購入品・預かり金の使用</label>
+        <textarea id="purchase" placeholder="例：預かり金より、○○を購入しました"></textarea>
+      </div>
+    </section>
+
+    <section class="card" id="handover-card">
+      <h2>📢 申し送り・共有事項</h2>
+      <div id="handovers"></div>
+      <button type="button" class="btn btn-block" id="add-handover">＋ 申し送りを追加</button>
+    </section>
+
+    <section class="card" id="preview-card">
+      <h2>LINEに貼る文面</h2>
+      <div class="preview-box is-empty" id="preview" aria-live="polite"></div>
+      <p class="hint">空欄の項目は文面に出ません。コピーしてグループに貼り付けてください。</p>
+    </section>
+  </div>
+
+  <div class="dock">
+    <div class="dock-inner">
+      <button type="button" class="btn btn-accent btn-block" id="copy-btn">コピーする</button>
+      <div class="side-actions">
+        <a class="btn" id="open-line" href="https://line.me/R/" rel="noopener">LINEを開く</a>
+        <button type="button" class="btn" id="clear-btn">クリア</button>
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+
+  <div class="overlay" id="settings" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <div class="modal">
+      <h2 id="settings-title">設定</h2>
+      <p class="hint" style="margin-bottom:12px">ホーム名と利用者さんは、この端末の中だけに保存します。利用者さんの名前をこのページの中にあらかじめ書き込むことはしません。</p>
+      <div class="field">
+        <label for="set-home">ホーム名</label>
+        <input class="ctrl" id="set-home" type="text" placeholder="ホーム名">
+      </div>
+      <div class="field">
+        <span class="lbl">利用者さん</span>
+        <div id="set-residents"></div>
+        <div class="add-row">
+          <input class="ctrl" id="new-resident" type="text" placeholder="名前を追加" autocomplete="off">
+          <button type="button" class="btn" id="add-resident">追加</button>
+        </div>
+      </div>
+      <div class="field">
+        <button type="button" class="btn btn-block" id="copy-link">設定用リンクをコピー</button>
+        <p class="hint">同じメンバーで使うときに、このリンクを共有できます（まだファイルを配っているだけのときは、ファイルと一緒に渡してください）。</p>
+      </div>
+      <button type="button" class="btn btn-accent btn-block" id="close-settings">とじる</button>
+    </div>
+  </div>
+
+  <textarea id="copy-fallback" class="sr-only" readonly aria-hidden="true"></textarea>
+
+  <script>
+  (function () {
+    'use strict';
+
+    var SETTINGS_KEY = 'gh-nippo-settings-v1';
+    var DRAFT_KEY = 'gh-nippo-draft-v1';
+    var WEEK = ['日', '月', '火', '水', '木', '金', '土'];
+    var MEDS = [
+      { key: 'morning', label: '朝' },
+      { key: 'noon', label: '昼' },
+      { key: 'evening', label: '夕' },
+      { key: 'bedtime', label: '寝る前' }
+    ];
+    var ENV_PRESETS = [
+      { key: 'trash', label: 'ゴミ箱洗浄', text: 'ゴミ箱を洗浄しました。' },
+      { key: 'vacuum', label: '掃除機がけ', text: '掃除機がけをしました。' },
+      { key: 'toilet', label: 'トイレ清掃', text: 'トイレを清掃しました。' },
+      { key: 'laundry-room', label: '洗濯場の清掃', text: '洗濯場を清掃しました。' },
+      { key: 'garbage-out', label: 'ゴミ出し', text: 'ゴミ出しをしました。' }
+    ];
+    var CIRCLED = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳';
+
+    var settings = { home: '', reporter: '', residents: [] };
+    var draft = emptyDraft();
+    var saveTimer = null;
+    var skipDraftBanner = false;
+
+    function emptyResident() {
+      return {
+        unchanged: false,
+        notUp: false,
+        wake: '',
+        sleep: '',
+        meds: { morning: { on: false, time: '' }, noon: { on: false, time: '' }, evening: { on: false, time: '' }, bedtime: { on: false, time: '' } },
+        meals: { breakfast: '', lunch: '', dinner: '', snack: '' },
+        bath: false,
+        laundry: false,
+        outing: '',
+        alcohol: '',
+        cigarettes: '',
+        condition: '',
+        notes: ''
+      };
+    }
+
+    function emptyDraft() {
+      return {
+        version: 1,
+        date: todayStr(),
+        dateEnd: addDays(todayStr(), 1),
+        shift: 'day',
+        reporter: '',
+        residents: {},
+        envPresets: [],
+        envNote: '',
+        purchase: '',
+        handovers: []
+      };
+    }
+
+    function todayStr() {
+      var d = new Date();
+      return toYmd(d);
+    }
+
+    function toYmd(d) {
+      var m = d.getMonth() + 1;
+      var day = d.getDate();
+      return d.getFullYear() + '-' + pad(m) + '-' + pad(day);
+    }
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    function addDays(ymd, n) {
+      var d = parseYmd(ymd);
+      if (!d) return ymd;
+      d.setDate(d.getDate() + n);
+      return toYmd(d);
+    }
+
+    function parseYmd(ymd) {
+      if (!ymd || !/^\d{4}-\d{2}-\d{2}$/.test(ymd)) return null;
+      var p = ymd.split('-');
+      var d = new Date(+p[0], +p[1] - 1, +p[2]);
+      if (isNaN(d.getTime())) return null;
+      return d;
+    }
+
+    function formatJaDate(ymd) {
+      var d = parseYmd(ymd);
+      if (!d) return '';
+      return (d.getMonth() + 1) + '月' + d.getDate() + '日（' + WEEK[d.getDay()] + '）';
+    }
+
+    function formatTime(t) {
+      if (!t) return '';
+      var p = String(t).split(':');
+      if (p.length < 2) return t;
+      return String(parseInt(p[0], 10)) + ':' + p[1];
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, function (c) {
+        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+      });
+    }
+
+    function loadJson(key) {
+      try {
+        var raw = localStorage.getItem(key);
+        if (!raw) return null;
+        return JSON.parse(raw);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function saveJson(key, val) {
+      try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {}
+    }
+
+    function uniqueNames(arr) {
+      var out = [];
+      var seen = {};
+      (arr || []).forEach(function (n) {
+        var s = String(n || '').trim();
+        if (!s || seen[s]) return;
+        seen[s] = true;
+        out.push(s);
+      });
+      return out;
+    }
+
+    function applyParams() {
+      var q = new URLSearchParams(location.search);
+      var home = q.get('home');
+      var r = q.get('r');
+      var changed = false;
+      if (home && home.trim()) {
+        settings.home = home.trim();
+        changed = true;
+      }
+      if (r != null && String(r).length) {
+        settings.residents = uniqueNames(String(r).split(','));
+        changed = true;
+      }
+      if (changed) saveJson(SETTINGS_KEY, settings);
+    }
+
+    function ensureResident(name) {
+      if (!draft.residents[name]) draft.residents[name] = emptyResident();
+      var r = draft.residents[name];
+      var base = emptyResident();
+      if (typeof r.unchanged !== 'boolean') r.unchanged = false;
+      if (typeof r.notUp !== 'boolean') r.notUp = false;
+      r.wake = r.wake || '';
+      r.sleep = r.sleep || '';
+      r.meds = r.meds || base.meds;
+      MEDS.forEach(function (m) {
+        r.meds[m.key] = r.meds[m.key] || { on: false, time: '' };
+      });
+      r.meals = Object.assign({ breakfast: '', lunch: '', dinner: '', snack: '' }, r.meals || {});
+      r.bath = !!r.bath;
+      r.laundry = !!r.laundry;
+      r.outing = r.outing || '';
+      r.alcohol = r.alcohol || '';
+      r.cigarettes = r.cigarettes == null ? '' : r.cigarettes;
+      r.condition = r.condition || '';
+      r.notes = r.notes || '';
+      return r;
+    }
+
+    function residentHasContent(r) {
+      if (!r) return false;
+      if (r.unchanged || r.notUp || r.wake || r.sleep) return true;
+      if (r.bath || r.laundry) return true;
+      if (r.outing || r.alcohol || r.cigarettes !== '' && r.cigarettes != null) return true;
+      if (r.condition || r.notes) return true;
+      if (r.meals && (r.meals.breakfast || r.meals.lunch || r.meals.dinner || r.meals.snack)) return true;
+      if (r.meds) {
+        for (var i = 0; i < MEDS.length; i++) {
+          var m = r.meds[MEDS[i].key];
+          if (m && (m.on || m.time)) return true;
+        }
+      }
+      return false;
+    }
+
+    function scheduleSave() {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(persist, 280);
+    }
+
+    function persist() {
+      readHeaderIntoDraft();
+      saveJson(SETTINGS_KEY, settings);
+      saveJson(DRAFT_KEY, draft);
+    }
+
+    function readHeaderIntoDraft() {
+      draft.date = document.getElementById('date').value || todayStr();
+      draft.dateEnd = document.getElementById('date-end').value || addDays(draft.date, 1);
+      var sh = document.querySelector('input[name="shift"]:checked');
+      draft.shift = sh ? sh.value : 'day';
+      draft.reporter = document.getElementById('reporter').value.trim();
+      settings.home = document.getElementById('home').value.trim();
+      settings.reporter = draft.reporter;
+      draft.envNote = document.getElementById('env-note').value;
+      draft.purchase = document.getElementById('purchase').value;
+    }
+
+    function shiftLabel(kind, date, dateEnd) {
+      var a = formatJaDate(date);
+      var b = formatJaDate(dateEnd);
+      if (kind === 'night-morning') {
+        return {
+          head: a + '夜勤〜' + b + '朝 日報',
+          foot: '以上、' + a + '夜勤〜' + b + '朝の日報です。'
+        };
+      }
+      if (kind === 'night') {
+        return {
+          head: a + '夜勤報告',
+          foot: '以上、' + a + 'の夜勤報告です。'
+        };
+      }
+      return {
+        head: a + '日勤報告',
+        foot: '以上、' + a + 'の日勤報告です。'
+      };
+    }
+
+    function circled(i) {
+      if (i >= 1 && i <= 20) return CIRCLED.charAt(i - 1);
+      return String(i) + '.';
+    }
+
+    function linesToBullets(text) {
+      return String(text || '').split(/\r?\n/).map(function (s) { return s.trim(); }).filter(Boolean);
+    }
+
+    function buildText() {
+      readHeaderIntoDraft();
+      var home = settings.home;
+      var labels = shiftLabel(draft.shift, draft.date, draft.dateEnd);
+      var lines = [];
+      var head = (home ? '📒 ' + home + '｜' : '📒 ') + labels.head;
+      lines.push(head);
+      if (draft.reporter) lines.push('記入：' + draft.reporter);
+      lines.push('');
+
+      settings.residents.forEach(function (name) {
+        var r = ensureResident(name);
+        if (!residentHasContent(r)) return;
+        lines.push('🧑 ' + name);
+        if (r.unchanged) lines.push('・変わりなくお過ごしです。');
+        if (r.notUp) lines.push('・朝の時点では、まだ起床されていませんでした。');
+        else if (r.wake) lines.push('・起床 ' + formatTime(r.wake));
+        if (r.sleep) lines.push('・就寝 ' + formatTime(r.sleep));
+
+        var medParts = [];
+        MEDS.forEach(function (m) {
+          var v = r.meds[m.key];
+          if (!v || (!v.on && !v.time)) return;
+          if (v.time) medParts.push(m.label + ' ' + formatTime(v.time));
+          else medParts.push(m.label + ' ✅');
+        });
+        if (medParts.length) lines.push('・服薬 ' + medParts.join(' ／ '));
+
+        if (r.meals.breakfast) lines.push('・朝食 ' + r.meals.breakfast);
+        if (r.meals.lunch) lines.push('・昼食 ' + r.meals.lunch);
+        if (r.meals.dinner) lines.push('・夕食 ' + r.meals.dinner);
+        if (r.meals.snack) lines.push('・おやつ ' + r.meals.snack);
+
+        if (r.bath && r.laundry) lines.push('・入浴・洗濯');
+        else if (r.bath) lines.push('・入浴');
+        else if (r.laundry) lines.push('・洗濯');
+
+        if (r.outing) lines.push('・外出・通所など ' + r.outing);
+        if (r.alcohol) lines.push('・飲酒 ' + r.alcohol);
+        if (r.cigarettes !== '' && r.cigarettes != null) lines.push('・タバコ ' + r.cigarettes + '本');
+        if (r.condition) lines.push('・体調・訴え ' + r.condition);
+        if (r.notes) {
+          var noteLines = String(r.notes).replace(/\s+$/,'').split(/\r?\n/);
+          if (noteLines.length === 1) lines.push('・様子・会話 ' + noteLines[0]);
+          else {
+            lines.push('・様子・会話');
+            noteLines.forEach(function (nl) { lines.push(nl); });
+          }
+        }
+        lines.push('');
+      });
+
+      var envLines = [];
+      ENV_PRESETS.forEach(function (p) {
+        if (draft.envPresets.indexOf(p.key) !== -1) envLines.push('・' + p.text);
+      });
+      linesToBullets(draft.envNote).forEach(function (t) {
+        envLines.push(t.charAt(0) === '・' ? t : '・' + t);
+      });
+      var buyLines = [];
+      linesToBullets(draft.purchase).forEach(function (t) {
+        buyLines.push(t.charAt(0) === '・' ? t : '・' + t);
+      });
+      if (envLines.length || buyLines.length) {
+        var title = '🧹 ';
+        if (envLines.length && buyLines.length) title += '環境整備・購入品';
+        else if (envLines.length) title += '環境整備';
+        else title += '購入品';
+        lines.push(title);
+        envLines.concat(buyLines).forEach(function (t) { lines.push(t); });
+        lines.push('');
+      }
+
+      var hos = (draft.handovers || []).filter(function (h) {
+        return h && ((h.target && h.target.trim()) || (h.title && h.title.trim()) || (h.body && h.body.trim()) || (h.mention && h.mention.trim()));
+      });
+      if (hos.length) {
+        lines.push('📢 申し送り・共有事項');
+        hos.forEach(function (h, i) {
+          var titleParts = [];
+          if (h.target && h.target.trim()) titleParts.push(h.target.trim());
+          if (h.title && h.title.trim()) titleParts.push(h.title.trim());
+          var headLine = circled(i + 1);
+          if (titleParts.length) headLine += ' ' + titleParts.join('｜');
+          lines.push(headLine);
+          if (h.mention && h.mention.trim()) {
+            var men = h.mention.trim();
+            if (men.charAt(0) !== '@') men = '@' + men;
+            if (!/さん\s*$/.test(men)) men += ' さん';
+            lines.push(men);
+          }
+          if (h.body && h.body.trim()) {
+            String(h.body).replace(/\s+$/,'').split(/\r?\n/).forEach(function (bl) { lines.push(bl); });
+          }
+          lines.push('');
+        });
+      }
+
+      while (lines.length && lines[lines.length - 1] === '') lines.pop();
+      lines.push('');
+      lines.push(labels.foot);
+      return lines.join('\n');
+    }
+
+    function updatePreview() {
+      var text = buildText();
+      var el = document.getElementById('preview');
+      el.textContent = text;
+      el.classList.toggle('is-empty', !text);
+      document.getElementById('date-ja').textContent = formatJaDate(document.getElementById('date').value);
+      document.getElementById('date-end-ja').textContent = formatJaDate(document.getElementById('date-end').value);
+      var shift = (document.querySelector('input[name="shift"]:checked') || {}).value || 'day';
+      document.body.classList.toggle('shift-night-morning', shift === 'night-morning');
+      document.getElementById('date-label').textContent = shift === 'night-morning' ? '開始日' : '日付';
+      updateBadges();
+    }
+
+    function updateBadges() {
+      settings.residents.forEach(function (name) {
+        var art = document.querySelector('details.resident[data-name="' + cssEscape(name) + '"]');
+        if (!art) return;
+        var r = ensureResident(name);
+        var badge = art.querySelector('.badge');
+        if (r.unchanged) { badge.textContent = '変わりなし'; badge.className = 'badge ok'; }
+        else if (residentHasContent(r)) { badge.textContent = '記入あり'; badge.className = 'badge done'; }
+        else { badge.textContent = '未記入'; badge.className = 'badge'; }
+      });
+    }
+
+    function cssEscape(s) {
+      if (window.CSS && CSS.escape) return CSS.escape(s);
+      return String(s).replace(/"/g, '\\"');
+    }
+
+    function renderEnvPresets() {
+      var box = document.getElementById('env-presets');
+      box.innerHTML = ENV_PRESETS.map(function (p) {
+        var on = draft.envPresets.indexOf(p.key) !== -1;
+        return '<label class="chip"><input type="checkbox" data-env="' + p.key + '"' + (on ? ' checked' : '') + '> ' + escapeHtml(p.label) + '</label>';
+      }).join('');
+    }
+
+    function renderResidents() {
+      var list = document.getElementById('residents-list');
+      var empty = document.getElementById('no-residents');
+      if (!settings.residents.length) {
+        list.innerHTML = '';
+        empty.hidden = false;
+        return;
+      }
+      empty.hidden = true;
+      var openNames = {};
+      list.querySelectorAll('details.resident').forEach(function (d) {
+        if (d.open) openNames[d.getAttribute('data-name')] = true;
+      });
+      var html = settings.residents.map(function (name, idx) {
+        var r = ensureResident(name);
+        var open = openNames[name] || (idx === 0 && !Object.keys(openNames).length);
+        return residentHtml(name, r, open);
+      }).join('');
+      list.innerHTML = html;
+    }
+
+    function residentHtml(name, r, open) {
+      var medHtml = MEDS.map(function (m) {
+        var v = r.meds[m.key] || { on: false, time: '' };
+        return '<div class="med">' +
+          '<label class="chip"><input type="checkbox" data-f="med-on" data-med="' + m.key + '"' + (v.on ? ' checked' : '') + '> ' + m.label + '</label>' +
+          '<input class="ctrl" type="time" lang="ja" data-f="med-time" data-med="' + m.key + '" value="' + escapeHtml(v.time || '') + '" aria-label="' + m.label + 'の時刻">' +
+          '</div>';
+      }).join('');
+      return '<details class="resident" data-name="' + escapeHtml(name) + '"' + (open ? ' open' : '') + '>' +
+        '<summary><span aria-hidden="true">🧑</span> ' + escapeHtml(name) +
+        ' <span class="badge">未記入</span><span class="chev" aria-hidden="true">▼</span></summary>' +
+        '<div class="res-body">' +
+        '<label class="toggle-row"><input type="checkbox" data-f="unchanged"' + (r.unchanged ? ' checked' : '') + '> 変わりなし</label>' +
+        '<div class="row">' +
+        '<div class="field"><label>起床時刻</label><input class="ctrl" type="time" lang="ja" data-f="wake" value="' + escapeHtml(r.wake || '') + '"' + (r.notUp ? ' disabled' : '') + '></div>' +
+        '<div class="field"><label>就寝時刻</label><input class="ctrl" type="time" lang="ja" data-f="sleep" value="' + escapeHtml(r.sleep || '') + '"></div>' +
+        '</div>' +
+        '<label class="toggle-row"><input type="checkbox" data-f="notUp"' + (r.notUp ? ' checked' : '') + '> 未起床（朝の時点）</label>' +
+        '<div class="field"><span class="lbl">服薬</span><div class="meds">' + medHtml + '</div></div>' +
+        '<div class="field"><label>朝食</label><input class="ctrl" type="text" data-f="breakfast" value="' + escapeHtml(r.meals.breakfast || '') + '" placeholder="食べたもの"></div>' +
+        '<div class="field"><label>昼食</label><input class="ctrl" type="text" data-f="lunch" value="' + escapeHtml(r.meals.lunch || '') + '" placeholder="食べたもの"></div>' +
+        '<div class="field"><label>夕食</label><input class="ctrl" type="text" data-f="dinner" value="' + escapeHtml(r.meals.dinner || '') + '" placeholder="食べたもの"></div>' +
+        '<div class="field"><label>おやつ</label><input class="ctrl" type="text" data-f="snack" value="' + escapeHtml(r.meals.snack || '') + '"></div>' +
+        '<div class="field"><span class="lbl">入浴・洗濯</span><div class="checks">' +
+        '<label class="chip"><input type="checkbox" data-f="bath"' + (r.bath ? ' checked' : '') + '> 入浴</label>' +
+        '<label class="chip"><input type="checkbox" data-f="laundry"' + (r.laundry ? ' checked' : '') + '> 洗濯</label>' +
+        '</div></div>' +
+        '<div class="field"><label>外出・通所・通院・帰省</label><input class="ctrl" type="text" data-f="outing" value="' + escapeHtml(r.outing || '') + '" placeholder="行き先や時間など"></div>' +
+        '<div class="field"><label>飲酒</label><input class="ctrl" type="text" data-f="alcohol" value="' + escapeHtml(r.alcohol || '') + '" placeholder="種類や本数など"></div>' +
+        '<div class="field"><label>タバコ本数</label><input class="ctrl" type="number" min="0" step="1" inputmode="numeric" data-f="cigarettes" value="' + escapeHtml(r.cigarettes === 0 || r.cigarettes ? String(r.cigarettes) : '') + '" placeholder="本数"></div>' +
+        '<div class="field"><label>体調・訴え</label><input class="ctrl" type="text" data-f="condition" value="' + escapeHtml(r.condition || '') + '" placeholder="寒い、膝が痛い、など"></div>' +
+        '<div class="field"><label>様子・会話</label><textarea data-f="notes" placeholder="過ごされた様子、会話など">' + escapeHtml(r.notes || '') + '</textarea></div>' +
+        '</div></details>';
+    }
+
+    function targetOptions(selected) {
+      var opts = ['', '全体'].concat(settings.residents);
+      var found = false;
+      var html = opts.map(function (o) {
+        var label = o === '' ? '（対象）' : o;
+        var sel = o === selected;
+        if (sel) found = true;
+        return '<option value="' + escapeHtml(o) + '"' + (sel ? ' selected' : '') + '>' + escapeHtml(label) + '</option>';
+      }).join('');
+      if (selected && !found) {
+        html += '<option value="' + escapeHtml(selected) + '" selected>' + escapeHtml(selected) + '</option>';
+      }
+      return html;
+    }
+
+    function renderHandovers() {
+      var box = document.getElementById('handovers');
+      if (!draft.handovers) draft.handovers = [];
+      box.innerHTML = draft.handovers.map(function (h, i) {
+        return '<div class="ho-item" data-ho="' + i + '">' +
+          '<div class="ho-head">' + circled(i + 1) + ' 申し送り' +
+          '<button type="button" class="linkish" data-del-ho="' + i + '">削除</button></div>' +
+          '<div class="row">' +
+          '<div class="field"><label>対象</label><select class="ctrl" data-ho-f="target">' + targetOptions(h.target || '') + '</select></div>' +
+          '<div class="field"><label>宛先スタッフ（任意）</label><input class="ctrl" type="text" data-ho-f="mention" value="' + escapeHtml(h.mention || '') + '" placeholder="名前"></div>' +
+          '</div>' +
+          '<div class="field"><label>件名（任意）</label><input class="ctrl" type="text" data-ho-f="title" value="' + escapeHtml(h.title || '') + '" placeholder="例：タバコの本数"></div>' +
+          '<div class="field"><label>内容</label><textarea data-ho-f="body" placeholder="申し送りしたいこと">' + escapeHtml(h.body || '') + '</textarea></div>' +
+          '</div>';
+      }).join('');
+    }
+
+    function renderSettingsResidents() {
+      var box = document.getElementById('set-residents');
+      if (!settings.residents.length) {
+        box.innerHTML = '<p class="hint">まだ登録がありません。</p>';
+        return;
+      }
+      box.innerHTML = settings.residents.map(function (name, i) {
+        return '<div class="res-edit" data-i="' + i + '">' +
+          '<button type="button" class="tiny" data-move="-1" aria-label="上へ">↑</button>' +
+          '<button type="button" class="tiny" data-move="1" aria-label="下へ">↓</button>' +
+          '<span>' + escapeHtml(name) + '</span>' +
+          '<button type="button" class="tiny" data-remove="1" aria-label="削除">×</button>' +
+          '</div>';
+      }).join('');
+    }
+
+    function fillHeader() {
+      document.getElementById('home').value = settings.home || '';
+      document.getElementById('set-home').value = settings.home || '';
+      document.getElementById('reporter').value = draft.reporter || settings.reporter || '';
+      document.getElementById('date').value = draft.date || todayStr();
+      document.getElementById('date-end').value = draft.dateEnd || addDays(draft.date || todayStr(), 1);
+      var shift = draft.shift || 'day';
+      var radio = document.querySelector('input[name="shift"][value="' + shift + '"]');
+      if (radio) radio.checked = true;
+      document.getElementById('env-note').value = draft.envNote || '';
+      document.getElementById('purchase').value = draft.purchase || '';
+    }
+
+    function showToast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(showToast._id);
+      showToast._id = setTimeout(function () { t.classList.remove('show'); }, 2200);
+    }
+
+    function copyText(text) {
+      var fallback = function () {
+        var ta = document.getElementById('copy-fallback');
+        ta.value = text;
+        ta.removeAttribute('aria-hidden');
+        ta.style.position = 'fixed';
+        ta.style.top = '0';
+        ta.style.left = '0';
+        ta.style.width = '2em';
+        ta.style.height = '2em';
+        ta.style.opacity = '0.05';
+        ta.removeAttribute('class');
+        ta.focus();
+        ta.removeAttribute('readonly');
+        ta.select();
+        ta.setSelectionRange(0, ta.value.length);
+        var ok = false;
+        try { ok = document.execCommand('copy'); } catch (e) {}
+        ta.setAttribute('readonly', '');
+        ta.className = 'sr-only';
+        ta.setAttribute('aria-hidden', 'true');
+        return ok;
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text).then(function () { return true; }).catch(function () { return fallback(); });
+      }
+      return Promise.resolve(fallback());
+    }
+
+    function maybeShowDraftBanner(restored) {
+      if (!restored || skipDraftBanner) return;
+      var today = todayStr();
+      var d = draft.date || today;
+      if (d === today) return;
+      var has = false;
+      if (draft.reporter || draft.envNote || draft.purchase || (draft.envPresets && draft.envPresets.length) || (draft.handovers && draft.handovers.length)) has = true;
+      settings.residents.forEach(function (n) { if (residentHasContent(draft.residents[n])) has = true; });
+      if (!has) return;
+      document.getElementById('draft-banner-text').textContent =
+        formatJaDate(d) + 'の下書きが残っています。続けて入力するか、今日の分から始められます（設定した利用者さんは残ります）。';
+      document.getElementById('draft-banner').classList.add('show');
+    }
+
+    function clearDraft(keepDateToday) {
+      var oldResKeys = draft.residents;
+      draft = emptyDraft();
+      if (!keepDateToday) {
+        /* still today */
+      }
+      draft.reporter = settings.reporter || '';
+      /* do not carry old resident entries */
+      void oldResKeys;
+      persist();
+      fillHeader();
+      renderEnvPresets();
+      renderResidents();
+      renderHandovers();
+      updatePreview();
+    }
+
+    function onRootInput(e) {
+      var t = e.target;
+      if (t.id === 'home' || t.id === 'set-home') {
+        settings.home = t.value.trim();
+        document.getElementById('home').value = t.id === 'set-home' ? t.value : document.getElementById('home').value;
+        if (t.id === 'home') document.getElementById('set-home').value = t.value;
+      }
+      if (t.id === 'date') {
+        var prev = draft.date;
+        draft.date = t.value;
+        var expected = addDays(prev, 1);
+        if (!document.getElementById('date-end').value || document.getElementById('date-end').value === expected) {
+          document.getElementById('date-end').value = addDays(draft.date, 1);
+        }
+      }
+      var res = t.closest && t.closest('details.resident');
+      if (res) {
+        var name = res.getAttribute('data-name');
+        var r = ensureResident(name);
+        var f = t.getAttribute('data-f');
+        if (f === 'unchanged') r.unchanged = t.checked;
+        else if (f === 'notUp') {
+          r.notUp = t.checked;
+          var wake = res.querySelector('[data-f="wake"]');
+          if (wake) wake.disabled = t.checked;
+        } else if (f === 'wake') r.wake = t.value;
+        else if (f === 'sleep') r.sleep = t.value;
+        else if (f === 'med-on') {
+          r.meds[t.getAttribute('data-med')].on = t.checked;
+        } else if (f === 'med-time') {
+          var mk = t.getAttribute('data-med');
+          r.meds[mk].time = t.value;
+          if (t.value) {
+            r.meds[mk].on = true;
+            var cb = res.querySelector('[data-f="med-on"][data-med="' + mk + '"]');
+            if (cb) cb.checked = true;
+          }
+        } else if (f === 'breakfast' || f === 'lunch' || f === 'dinner' || f === 'snack') {
+          r.meals[f] = t.value;
+        } else if (f === 'bath') r.bath = t.checked;
+        else if (f === 'laundry') r.laundry = t.checked;
+        else if (f === 'outing') r.outing = t.value;
+        else if (f === 'alcohol') r.alcohol = t.value;
+        else if (f === 'cigarettes') r.cigarettes = t.value === '' ? '' : t.value;
+        else if (f === 'condition') r.condition = t.value;
+        else if (f === 'notes') r.notes = t.value;
+      }
+      if (t.getAttribute('data-env')) {
+        var key = t.getAttribute('data-env');
+        var i = draft.envPresets.indexOf(key);
+        if (t.checked && i === -1) draft.envPresets.push(key);
+        if (!t.checked && i !== -1) draft.envPresets.splice(i, 1);
+      }
+      var ho = t.closest && t.closest('.ho-item');
+      if (ho && t.getAttribute('data-ho-f')) {
+        var idx = +ho.getAttribute('data-ho');
+        if (draft.handovers[idx]) draft.handovers[idx][t.getAttribute('data-ho-f')] = t.value;
+      }
+      if (t.tagName === 'TEXTAREA') {
+        t.style.height = 'auto';
+        t.style.height = Math.max(88, t.scrollHeight) + 'px';
+      }
+      if (e.type === 'change') persist();
+      else scheduleSave();
+      updatePreview();
+    }
+
+    document.addEventListener('input', onRootInput);
+    document.addEventListener('change', onRootInput);
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'hidden') persist();
+    });
+    window.addEventListener('pagehide', persist);
+    window.addEventListener('beforeunload', persist);
+
+    document.getElementById('add-handover').addEventListener('click', function () {
+      draft.handovers.push({ target: '', title: '', body: '', mention: '' });
+      renderHandovers();
+      scheduleSave();
+      updatePreview();
+    });
+
+    document.getElementById('handovers').addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-del-ho]');
+      if (!btn) return;
+      var idx = +btn.getAttribute('data-del-ho');
+      draft.handovers.splice(idx, 1);
+      renderHandovers();
+      scheduleSave();
+      updatePreview();
+    });
+
+    function openSettings() {
+      document.getElementById('set-home').value = settings.home || '';
+      renderSettingsResidents();
+      document.getElementById('settings').classList.add('show');
+      document.getElementById('set-home').focus();
+    }
+    function closeSettings() {
+      settings.home = document.getElementById('set-home').value.trim();
+      document.getElementById('home').value = settings.home;
+      document.getElementById('settings').classList.remove('show');
+      persist();
+      renderResidents();
+      renderHandovers();
+      updatePreview();
+    }
+    document.getElementById('open-settings').addEventListener('click', openSettings);
+    document.getElementById('open-settings-2').addEventListener('click', openSettings);
+    document.getElementById('close-settings').addEventListener('click', closeSettings);
+    document.getElementById('settings').addEventListener('click', function (e) {
+      if (e.target.id === 'settings') closeSettings();
+    });
+
+    document.getElementById('add-resident').addEventListener('click', addResident);
+    document.getElementById('new-resident').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); addResident(); }
+    });
+    function addResident() {
+      var inp = document.getElementById('new-resident');
+      var name = inp.value.trim();
+      if (!name) return;
+      if (settings.residents.indexOf(name) === -1) settings.residents.push(name);
+      inp.value = '';
+      renderSettingsResidents();
+      persist();
+    }
+    document.getElementById('set-residents').addEventListener('click', function (e) {
+      var row = e.target.closest('.res-edit');
+      if (!row) return;
+      var i = +row.getAttribute('data-i');
+      if (e.target.closest('[data-remove]')) {
+        settings.residents.splice(i, 1);
+      } else if (e.target.closest('[data-move]')) {
+        var dir = +e.target.closest('[data-move]').getAttribute('data-move');
+        var j = i + dir;
+        if (j < 0 || j >= settings.residents.length) return;
+        var arr = settings.residents;
+        var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+      } else return;
+      renderSettingsResidents();
+      persist();
+    });
+
+    document.getElementById('copy-link').addEventListener('click', function () {
+      settings.home = document.getElementById('set-home').value.trim();
+      var u = new URL(location.href);
+      if (settings.home) u.searchParams.set('home', settings.home);
+      else u.searchParams.delete('home');
+      if (settings.residents.length) u.searchParams.set('r', settings.residents.join(','));
+      else u.searchParams.delete('r');
+      copyText(u.toString()).then(function (ok) {
+        showToast(ok ? '設定用リンクをコピーしました' : 'コピーできませんでした');
+      });
+    });
+
+    document.getElementById('copy-btn').addEventListener('click', function () {
+      var text = buildText();
+      copyText(text).then(function (ok) {
+        showToast(ok ? 'コピーしました。LINEに貼り付けてください' : 'コピーできませんでした。文面を長押ししてコピーしてください');
+      });
+    });
+
+    document.getElementById('clear-btn').addEventListener('click', function () {
+      if (!confirm('入力中の内容を消します。ホーム名と利用者さんの設定は残ります。よろしいですか？')) return;
+      document.getElementById('draft-banner').classList.remove('show');
+      clearDraft(true);
+      showToast('入力をクリアしました');
+    });
+
+    document.getElementById('keep-draft').addEventListener('click', function () {
+      document.getElementById('draft-banner').classList.remove('show');
+    });
+    document.getElementById('fresh-draft').addEventListener('click', function () {
+      document.getElementById('draft-banner').classList.remove('show');
+      clearDraft(true);
+    });
+
+    /* init */
+    var savedSet = loadJson(SETTINGS_KEY);
+    if (savedSet && typeof savedSet === 'object') {
+      settings.home = savedSet.home || '';
+      settings.reporter = savedSet.reporter || '';
+      settings.residents = uniqueNames(savedSet.residents || []);
+    }
+    applyParams();
+    var savedDraft = loadJson(DRAFT_KEY);
+    var restored = false;
+    if (savedDraft && typeof savedDraft === 'object') {
+      draft = Object.assign(emptyDraft(), savedDraft);
+      draft.residents = savedDraft.residents || {};
+      draft.envPresets = Array.isArray(savedDraft.envPresets) ? savedDraft.envPresets : [];
+      draft.handovers = Array.isArray(savedDraft.handovers) ? savedDraft.handovers : [];
+      restored = true;
+    }
+    if (!draft.reporter && settings.reporter) draft.reporter = settings.reporter;
+    fillHeader();
+    renderEnvPresets();
+    renderResidents();
+    renderHandovers();
+    updatePreview();
+    maybeShowDraftBanner(restored);
+  })();
+  </script>
+</body>
+</html>
