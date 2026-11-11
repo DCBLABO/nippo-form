@@ -191,6 +191,7 @@
 
     .end-date { display: none; }
     body.shift-night-morning .end-date { display: block; }
+    .sect-h { font-weight: 700; margin: 18px 0 6px; padding-top: 10px; border-top: 1px dashed #e2d6c8; color: #8a5a3c; }
 
     details.resident {
       background: var(--paper);
@@ -625,6 +626,7 @@
         meals: { breakfast: '', lunch: '', dinner: '', snack: '' },
         bath: false,
         laundry: false,
+        back: '',
         outing: '',
         alcohol: '',
         cigarettes: '',
@@ -753,6 +755,7 @@
       r.bath = !!r.bath;
       r.laundry = !!r.laundry;
       r.outing = r.outing || '';
+      r.back = r.back || '';
       r.alcohol = r.alcohol || '';
       r.cigarettes = r.cigarettes == null ? '' : r.cigarettes;
       r.condition = r.condition || '';
@@ -764,7 +767,7 @@
       if (!r) return false;
       if (r.unchanged || r.notUp || r.wake || r.sleep) return true;
       if (r.bath || r.laundry) return true;
-      if (r.outing || r.alcohol || r.cigarettes !== '' && r.cigarettes != null) return true;
+      if (r.back || r.outing || r.alcohol || r.cigarettes !== '' && r.cigarettes != null) return true;
       if (r.condition || r.notes) return true;
       if (r.meals && (r.meals.breakfast || r.meals.lunch || r.meals.dinner || r.meals.snack)) return true;
       if (r.meds) {
@@ -810,8 +813,8 @@
       }
       if (kind === 'day-night') {
         return {
-          head: a + '日勤〜夜勤報告',
-          foot: '以上、' + a + 'の日勤〜夜勤報告です。'
+          head: a + '日勤〜' + b + '朝 報告',
+          foot: '以上、' + a + '日勤〜' + b + '朝の報告です。'
         };
       }
       if (kind === 'night') {
@@ -824,6 +827,22 @@
         head: a + '日勤報告',
         foot: '以上、' + a + 'の日勤報告です。'
       };
+    }
+
+    function medText(r, keys) {
+      var parts = [];
+      MEDS.forEach(function (m) {
+        if (keys.indexOf(m.key) === -1) return;
+        var v = r.meds[m.key];
+        if (!v || (!v.on && !v.time)) return;
+        parts.push(v.time ? m.label + ' ' + formatTime(v.time) : m.label + ' ✅');
+      });
+      return parts.join(' ／ ');
+    }
+
+    function curShift() {
+      var sh = document.querySelector('input[name="shift"]:checked');
+      return sh ? sh.value : (draft.shift || 'day');
     }
 
     function circled(i) {
@@ -849,6 +868,31 @@
         var r = ensureResident(name);
         if (!residentHasContent(r)) return;
         lines.push('🧑 ' + name);
+        if (draft.shift === 'day-night') {
+          if (r.unchanged) lines.push('・変わりなくお過ごしです。');
+          var eve = [];
+          if (r.back) eve.push('・帰宅 ' + formatTime(r.back));
+          if (r.outing) eve.push('・外出・通所など ' + r.outing);
+          if (r.bath && r.laundry) eve.push('・入浴・洗濯');
+          else if (r.bath) eve.push('・入浴');
+          else if (r.laundry) eve.push('・洗濯');
+          if (r.meals.dinner) eve.push('・夕食 ' + r.meals.dinner);
+          if (r.meals.snack) eve.push('・おやつ ' + r.meals.snack);
+          if (r.alcohol) eve.push('・飲酒 ' + r.alcohol);
+          var em = medText(r, ['evening', 'bedtime']);
+          if (em) eve.push('・服薬 ' + em);
+          if (r.sleep) eve.push('・就寝 ' + formatTime(r.sleep));
+          var morn = [];
+          if (r.notUp) morn.push('・朝の時点では、まだ起床されていませんでした。');
+          else if (r.wake) morn.push('・起床 ' + formatTime(r.wake));
+          var mm = medText(r, ['morning', 'noon']);
+          if (mm) morn.push('・服薬 ' + mm);
+          if (r.meals.breakfast) morn.push('・朝食 ' + r.meals.breakfast);
+          if (r.meals.lunch) morn.push('・昼食 ' + r.meals.lunch);
+          if (eve.length) { lines.push('【' + formatJaDate(draft.date) + '夕方〜夜】'); eve.forEach(function (x) { lines.push(x); }); }
+          if (morn.length) { lines.push('【' + formatJaDate(draft.dateEnd) + '朝】'); morn.forEach(function (x) { lines.push(x); }); }
+          if ((eve.length || morn.length) && (r.cigarettes !== '' && r.cigarettes != null || r.condition || r.notes)) lines.push('【その他】');
+        } else {
         if (r.unchanged) lines.push('・変わりなくお過ごしです。');
         if (r.notUp) lines.push('・朝の時点では、まだ起床されていませんでした。');
         else if (r.wake) lines.push('・起床 ' + formatTime(r.wake));
@@ -874,6 +918,7 @@
 
         if (r.outing) lines.push('・外出・通所など ' + r.outing);
         if (r.alcohol) lines.push('・飲酒 ' + r.alcohol);
+        }
         if (r.cigarettes !== '' && r.cigarettes != null) lines.push('・タバコ ' + r.cigarettes + '本');
         if (r.condition) lines.push('・体調・訴え ' + r.condition);
         if (r.notes) {
@@ -947,8 +992,8 @@
       document.getElementById('date-ja').textContent = formatJaDate(document.getElementById('date').value);
       document.getElementById('date-end-ja').textContent = formatJaDate(document.getElementById('date-end').value);
       var shift = (document.querySelector('input[name="shift"]:checked') || {}).value || 'day';
-      document.body.classList.toggle('shift-night-morning', shift === 'night-morning');
-      document.getElementById('date-label').textContent = shift === 'night-morning' ? '開始日' : '日付';
+      document.body.classList.toggle('shift-night-morning', shift === 'day-night');
+      document.getElementById('date-label').textContent = shift === 'day-night' ? '開始日' : '日付';
       updateBadges();
     }
 
@@ -998,19 +1043,18 @@
       list.innerHTML = html;
     }
 
-    function residentHtml(name, r, open) {
-      var medHtml = MEDS.map(function (m) {
+    function medBlock(r, keys) {
+      return MEDS.filter(function (m) { return keys.indexOf(m.key) !== -1; }).map(function (m) {
         var v = r.meds[m.key] || { on: false, time: '' };
         return '<div class="med">' +
           '<label class="chip"><input type="checkbox" data-f="med-on" data-med="' + m.key + '"' + (v.on ? ' checked' : '') + '> ' + m.label + '</label>' +
           '<input class="ctrl" type="time" lang="ja" data-f="med-time" data-med="' + m.key + '" value="' + escapeHtml(v.time || '') + '" aria-label="' + m.label + 'の時刻">' +
           '</div>';
       }).join('');
-      return '<details class="resident" data-name="' + escapeHtml(name) + '"' + (open ? ' open' : '') + '>' +
-        '<summary><span aria-hidden="true">🧑</span> ' + escapeHtml(name) +
-        ' <span class="badge">未記入</span><span class="chev" aria-hidden="true">▼</span></summary>' +
-        '<div class="res-body">' +
-        '<label class="toggle-row"><input type="checkbox" data-f="unchanged"' + (r.unchanged ? ' checked' : '') + '> 変わりなし</label>' +
+    }
+
+    function normalFields(r, medHtml) {
+      return '<label class="toggle-row"><input type="checkbox" data-f="unchanged"' + (r.unchanged ? ' checked' : '') + '> 変わりなし</label>' +
         '<div class="row">' +
         '<div class="field"><label>起床時刻</label><input class="ctrl" type="time" lang="ja" data-f="wake" value="' + escapeHtml(r.wake || '') + '"' + (r.notUp ? ' disabled' : '') + '></div>' +
         '<div class="field"><label>就寝時刻</label><input class="ctrl" type="time" lang="ja" data-f="sleep" value="' + escapeHtml(r.sleep || '') + '"></div>' +
@@ -1026,7 +1070,47 @@
         '<label class="chip"><input type="checkbox" data-f="laundry"' + (r.laundry ? ' checked' : '') + '> 洗濯</label>' +
         '</div></div>' +
         '<div class="field"><label>外出・通所・通院・帰省</label><input class="ctrl" type="text" data-f="outing" value="' + escapeHtml(r.outing || '') + '" placeholder="行き先や時間など"></div>' +
-        '<div class="field"><label>飲酒</label><input class="ctrl" type="text" data-f="alcohol" value="' + escapeHtml(r.alcohol || '') + '" placeholder="種類や本数など"></div>' +
+        '<div class="field"><label>飲酒</label><input class="ctrl" type="text" data-f="alcohol" value="' + escapeHtml(r.alcohol || '') + '" placeholder="種類や本数など"></div>';
+    }
+
+    function dayNightFields(r) {
+      function txt(f, label, val, ph) { return '<div class="field"><label>' + label + '</label><input class="ctrl" type="text" data-f="' + f + '" value="' + escapeHtml(val || '') + '"' + (ph ? ' placeholder="' + ph + '"' : '') + '></div>'; }
+      function tm(f, label, val, dis) { return '<div class="field"><label>' + label + '</label><input class="ctrl" type="time" lang="ja" data-f="' + f + '" value="' + escapeHtml(val || '') + '"' + (dis ? ' disabled' : '') + '></div>'; }
+      return '<label class="toggle-row"><input type="checkbox" data-f="unchanged"' + (r.unchanged ? ' checked' : '') + '> 変わりなし</label>' +
+        '<div class="sect-h">🌆 夕方〜夜</div>' +
+        tm('back', '帰宅時刻', r.back) +
+        txt('outing', '外出・通所・通院・帰省', r.outing, '行き先や時間など') +
+        '<div class="field"><span class="lbl">入浴・洗濯</span><div class="checks">' +
+        '<label class="chip"><input type="checkbox" data-f="bath"' + (r.bath ? ' checked' : '') + '> 入浴</label>' +
+        '<label class="chip"><input type="checkbox" data-f="laundry"' + (r.laundry ? ' checked' : '') + '> 洗濯</label>' +
+        '</div></div>' +
+        txt('dinner', '夕食', r.meals.dinner, '食べたもの') +
+        txt('snack', 'おやつ', r.meals.snack) +
+        txt('alcohol', '飲酒', r.alcohol, '種類や本数など') +
+        '<div class="field"><span class="lbl">服薬（夕・寝る前）</span><div class="meds">' + medBlock(r, ['evening', 'bedtime']) + '</div></div>' +
+        tm('sleep', '就寝時刻', r.sleep) +
+        '<div class="sect-h">🌅 翌朝</div>' +
+        tm('wake', '起床時刻', r.wake, r.notUp) +
+        '<label class="toggle-row"><input type="checkbox" data-f="notUp"' + (r.notUp ? ' checked' : '') + '> 未起床（朝の時点）</label>' +
+        '<div class="field"><span class="lbl">服薬（朝・昼）</span><div class="meds">' + medBlock(r, ['morning', 'noon']) + '</div></div>' +
+        txt('breakfast', '朝食', r.meals.breakfast, '食べたもの') +
+        txt('lunch', '昼食', r.meals.lunch, '食べたもの') +
+        '<div class="sect-h">📝 その他</div>';
+    }
+
+    function residentHtml(name, r, open) {
+      var medHtml = MEDS.map(function (m) {
+        var v = r.meds[m.key] || { on: false, time: '' };
+        return '<div class="med">' +
+          '<label class="chip"><input type="checkbox" data-f="med-on" data-med="' + m.key + '"' + (v.on ? ' checked' : '') + '> ' + m.label + '</label>' +
+          '<input class="ctrl" type="time" lang="ja" data-f="med-time" data-med="' + m.key + '" value="' + escapeHtml(v.time || '') + '" aria-label="' + m.label + 'の時刻">' +
+          '</div>';
+      }).join('');
+      return '<details class="resident" data-name="' + escapeHtml(name) + '"' + (open ? ' open' : '') + '>' +
+        '<summary><span aria-hidden="true">🧑</span> ' + escapeHtml(name) +
+        ' <span class="badge">未記入</span><span class="chev" aria-hidden="true">▼</span></summary>' +
+        '<div class="res-body">' +
+        (curShift() === 'day-night' ? dayNightFields(r, medBlock) : normalFields(r, medHtml)) +
         '<div class="field"><label>タバコ本数</label><input class="ctrl" type="number" min="0" step="1" inputmode="numeric" data-f="cigarettes" value="' + escapeHtml(r.cigarettes === 0 || r.cigarettes ? String(r.cigarettes) : '') + '" placeholder="本数"></div>' +
         '<div class="field"><label>体調・訴え</label><input class="ctrl" type="text" data-f="condition" value="' + escapeHtml(r.condition || '') + '" placeholder="寒い、膝が痛い、など"></div>' +
         '<div class="field"><label>様子・会話</label><textarea data-f="notes" placeholder="過ごされた様子、会話など">' + escapeHtml(r.notes || '') + '</textarea></div>' +
@@ -1177,6 +1261,7 @@
           document.getElementById('date-end').value = addDays(draft.date, 1);
         }
       }
+      if (t.name === 'shift') { readHeaderIntoDraft(); renderResidents(); }
       var res = t.closest && t.closest('details.resident');
       if (res) {
         var name = res.getAttribute('data-name');
@@ -1204,6 +1289,7 @@
         } else if (f === 'bath') r.bath = t.checked;
         else if (f === 'laundry') r.laundry = t.checked;
         else if (f === 'outing') r.outing = t.value;
+        else if (f === 'back') r.back = t.value;
         else if (f === 'alcohol') r.alcohol = t.value;
         else if (f === 'cigarettes') r.cigarettes = t.value === '' ? '' : t.value;
         else if (f === 'condition') r.condition = t.value;
