@@ -191,6 +191,9 @@
 
     .end-date { display: none; }
     body.shift-night-morning .end-date { display: block; }
+    .meal-row { display: flex; gap: 8px; }
+    .meal-row .meal-time { flex: 0 0 38%; }
+    .meal-row input[type=text] { flex: 1; min-width: 0; }
     .sect-h { font-weight: 700; margin: 18px 0 6px; padding-top: 10px; border-top: 1px dashed #e2d6c8; color: #8a5a3c; }
 
     details.resident {
@@ -624,6 +627,7 @@
         sleep: '',
         meds: { morning: { on: false, time: '' }, noon: { on: false, time: '' }, evening: { on: false, time: '' }, bedtime: { on: false, time: '' } },
         meals: { breakfast: '', lunch: '', dinner: '', snack: '' },
+        mealTimes: { breakfast: '', lunch: '', dinner: '', snack: '' },
         bath: false,
         laundry: false,
         back: '',
@@ -752,6 +756,7 @@
         r.meds[m.key] = r.meds[m.key] || { on: false, time: '' };
       });
       r.meals = Object.assign({ breakfast: '', lunch: '', dinner: '', snack: '' }, r.meals || {});
+      r.mealTimes = Object.assign({ breakfast: '', lunch: '', dinner: '', snack: '' }, r.mealTimes || {});
       r.bath = !!r.bath;
       r.laundry = !!r.laundry;
       r.outing = r.outing || '';
@@ -769,6 +774,7 @@
       if (r.bath || r.laundry) return true;
       if (r.back || r.outing || r.alcohol || r.cigarettes !== '' && r.cigarettes != null) return true;
       if (r.condition || r.notes) return true;
+      if (r.mealTimes && (r.mealTimes.breakfast || r.mealTimes.lunch || r.mealTimes.dinner || r.mealTimes.snack)) return true;
       if (r.meals && (r.meals.breakfast || r.meals.lunch || r.meals.dinner || r.meals.snack)) return true;
       if (r.meds) {
         for (var i = 0; i < MEDS.length; i++) {
@@ -829,6 +835,19 @@
       };
     }
 
+    function mealLine(r, key, label) {
+      var t = r.mealTimes && r.mealTimes[key] ? formatTime(r.mealTimes[key]) : '';
+      var m = r.meals[key] || '';
+      if (!t && !m) return '';
+      return '・' + label + (t ? ' ' + t : '') + (m ? ' ' + m : '');
+    }
+
+    function mealField(r, key, label) {
+      return '<div class="field"><label>' + label + '</label><div class="meal-row">' +
+        '<input class="ctrl meal-time" type="time" lang="ja" data-f="mt-' + key + '" value="' + escapeHtml((r.mealTimes && r.mealTimes[key]) || '') + '" aria-label="' + label + 'の時刻">' +
+        '<input class="ctrl" type="text" data-f="' + key + '" value="' + escapeHtml(r.meals[key] || '') + '" placeholder="食べたもの"></div></div>';
+    }
+
     function medText(r, keys) {
       var parts = [];
       MEDS.forEach(function (m) {
@@ -876,8 +895,8 @@
           if (r.bath && r.laundry) eve.push('・入浴・洗濯');
           else if (r.bath) eve.push('・入浴');
           else if (r.laundry) eve.push('・洗濯');
-          if (r.meals.dinner) eve.push('・夕食 ' + r.meals.dinner);
-          if (r.meals.snack) eve.push('・おやつ ' + r.meals.snack);
+          var ml_dinner = mealLine(r, 'dinner', '夕食'); if (ml_dinner) eve.push(ml_dinner);
+          var ml_snack = mealLine(r, 'snack', 'おやつ'); if (ml_snack) eve.push(ml_snack);
           if (r.alcohol) eve.push('・飲酒 ' + r.alcohol);
           var em = medText(r, ['evening', 'bedtime']);
           if (em) eve.push('・服薬 ' + em);
@@ -887,8 +906,8 @@
           else if (r.wake) morn.push('・起床 ' + formatTime(r.wake));
           var mm = medText(r, ['morning', 'noon']);
           if (mm) morn.push('・服薬 ' + mm);
-          if (r.meals.breakfast) morn.push('・朝食 ' + r.meals.breakfast);
-          if (r.meals.lunch) morn.push('・昼食 ' + r.meals.lunch);
+          var ml_breakfast = mealLine(r, 'breakfast', '朝食'); if (ml_breakfast) morn.push(ml_breakfast);
+          var ml_lunch = mealLine(r, 'lunch', '昼食'); if (ml_lunch) morn.push(ml_lunch);
           if (eve.length) { lines.push('【' + formatJaDate(draft.date) + '夕方〜夜】'); eve.forEach(function (x) { lines.push(x); }); }
           if (morn.length) { lines.push('【' + formatJaDate(draft.dateEnd) + '朝】'); morn.forEach(function (x) { lines.push(x); }); }
           if ((eve.length || morn.length) && (r.cigarettes !== '' && r.cigarettes != null || r.condition || r.notes)) lines.push('【その他】');
@@ -907,10 +926,10 @@
         });
         if (medParts.length) lines.push('・服薬 ' + medParts.join(' ／ '));
 
-        if (r.meals.breakfast) lines.push('・朝食 ' + r.meals.breakfast);
-        if (r.meals.lunch) lines.push('・昼食 ' + r.meals.lunch);
-        if (r.meals.dinner) lines.push('・夕食 ' + r.meals.dinner);
-        if (r.meals.snack) lines.push('・おやつ ' + r.meals.snack);
+        var ml_breakfast = mealLine(r, 'breakfast', '朝食'); if (ml_breakfast) lines.push(ml_breakfast);
+        var ml_lunch = mealLine(r, 'lunch', '昼食'); if (ml_lunch) lines.push(ml_lunch);
+        var ml_dinner = mealLine(r, 'dinner', '夕食'); if (ml_dinner) lines.push(ml_dinner);
+        var ml_snack = mealLine(r, 'snack', 'おやつ'); if (ml_snack) lines.push(ml_snack);
 
         if (r.bath && r.laundry) lines.push('・入浴・洗濯');
         else if (r.bath) lines.push('・入浴');
@@ -1061,10 +1080,10 @@
         '</div>' +
         '<label class="toggle-row"><input type="checkbox" data-f="notUp"' + (r.notUp ? ' checked' : '') + '> 未起床（朝の時点）</label>' +
         '<div class="field"><span class="lbl">服薬</span><div class="meds">' + medHtml + '</div></div>' +
-        '<div class="field"><label>朝食</label><input class="ctrl" type="text" data-f="breakfast" value="' + escapeHtml(r.meals.breakfast || '') + '" placeholder="食べたもの"></div>' +
-        '<div class="field"><label>昼食</label><input class="ctrl" type="text" data-f="lunch" value="' + escapeHtml(r.meals.lunch || '') + '" placeholder="食べたもの"></div>' +
-        '<div class="field"><label>夕食</label><input class="ctrl" type="text" data-f="dinner" value="' + escapeHtml(r.meals.dinner || '') + '" placeholder="食べたもの"></div>' +
-        '<div class="field"><label>おやつ</label><input class="ctrl" type="text" data-f="snack" value="' + escapeHtml(r.meals.snack || '') + '"></div>' +
+        mealField(r, 'breakfast', '朝食') +
+        mealField(r, 'lunch', '昼食') +
+        mealField(r, 'dinner', '夕食') +
+        mealField(r, 'snack', 'おやつ') +
         '<div class="field"><span class="lbl">入浴・洗濯</span><div class="checks">' +
         '<label class="chip"><input type="checkbox" data-f="bath"' + (r.bath ? ' checked' : '') + '> 入浴</label>' +
         '<label class="chip"><input type="checkbox" data-f="laundry"' + (r.laundry ? ' checked' : '') + '> 洗濯</label>' +
@@ -1084,8 +1103,8 @@
         '<label class="chip"><input type="checkbox" data-f="bath"' + (r.bath ? ' checked' : '') + '> 入浴</label>' +
         '<label class="chip"><input type="checkbox" data-f="laundry"' + (r.laundry ? ' checked' : '') + '> 洗濯</label>' +
         '</div></div>' +
-        txt('dinner', '夕食', r.meals.dinner, '食べたもの') +
-        txt('snack', 'おやつ', r.meals.snack) +
+        mealField(r, 'dinner', '夕食') +
+        mealField(r, 'snack', 'おやつ') +
         txt('alcohol', '飲酒', r.alcohol, '種類や本数など') +
         '<div class="field"><span class="lbl">服薬（夕・寝る前）</span><div class="meds">' + medBlock(r, ['evening', 'bedtime']) + '</div></div>' +
         tm('sleep', '就寝時刻', r.sleep) +
@@ -1093,8 +1112,8 @@
         tm('wake', '起床時刻', r.wake, r.notUp) +
         '<label class="toggle-row"><input type="checkbox" data-f="notUp"' + (r.notUp ? ' checked' : '') + '> 未起床（朝の時点）</label>' +
         '<div class="field"><span class="lbl">服薬（朝・昼）</span><div class="meds">' + medBlock(r, ['morning', 'noon']) + '</div></div>' +
-        txt('breakfast', '朝食', r.meals.breakfast, '食べたもの') +
-        txt('lunch', '昼食', r.meals.lunch, '食べたもの') +
+        mealField(r, 'breakfast', '朝食') +
+        mealField(r, 'lunch', '昼食') +
         '<div class="sect-h">📝 その他</div>';
     }
 
@@ -1286,6 +1305,8 @@
           }
         } else if (f === 'breakfast' || f === 'lunch' || f === 'dinner' || f === 'snack') {
           r.meals[f] = t.value;
+        } else if (f && f.indexOf('mt-') === 0) {
+          r.mealTimes[f.slice(3)] = t.value;
         } else if (f === 'bath') r.bath = t.checked;
         else if (f === 'laundry') r.laundry = t.checked;
         else if (f === 'outing') r.outing = t.value;
