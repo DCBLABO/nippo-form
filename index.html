@@ -913,7 +913,17 @@
           if ((eve.length || morn.length) && (r.cigarettes !== '' && r.cigarettes != null || r.condition || r.notes)) lines.push('【その他】');
         } else {
         if (r.unchanged) lines.push('・変わりなくお過ごしです。');
-        if (r.sleep && draft.shift === 'night') lines.push('・就寝 ' + formatTime(r.sleep));
+        if (draft.shift === 'night') {
+          [['dinner', '夕食'], ['snack', 'おやつ']].forEach(function (mo) { var ml = mealLine(r, mo[0], mo[1]); if (ml) lines.push(ml); });
+          var nm1 = medText(r, ['evening', 'bedtime']);
+          if (nm1) lines.push('・服薬 ' + nm1);
+          if (r.sleep) lines.push('・就寝 ' + formatTime(r.sleep));
+          if (r.notUp) lines.push('・朝の時点では、まだ起床されていませんでした。');
+          else if (r.wake) lines.push('・起床 ' + formatTime(r.wake));
+          var nm2 = medText(r, ['morning', 'noon']);
+          if (nm2) lines.push('・服薬 ' + nm2);
+          [['breakfast', '朝食'], ['lunch', '昼食']].forEach(function (mo) { var ml = mealLine(r, mo[0], mo[1]); if (ml) lines.push(ml); });
+        } else {
         if (r.notUp) lines.push('・朝の時点では、まだ起床されていませんでした。');
         else if (r.wake) lines.push('・起床 ' + formatTime(r.wake));
 
@@ -926,10 +936,10 @@
         });
         if (medParts.length) lines.push('・服薬 ' + medParts.join(' ／ '));
 
-        var ml_breakfast = mealLine(r, 'breakfast', '朝食'); if (ml_breakfast) lines.push(ml_breakfast);
-        var ml_lunch = mealLine(r, 'lunch', '昼食'); if (ml_lunch) lines.push(ml_lunch);
-        var ml_dinner = mealLine(r, 'dinner', '夕食'); if (ml_dinner) lines.push(ml_dinner);
-        var ml_snack = mealLine(r, 'snack', 'おやつ'); if (ml_snack) lines.push(ml_snack);
+        var mealOrder = [['breakfast', '朝食'], ['lunch', '昼食'], ['dinner', '夕食'], ['snack', 'おやつ']];
+        mealOrder.forEach(function (mo) { var ml = mealLine(r, mo[0], mo[1]); if (ml) lines.push(ml); });
+
+        }
 
         if (r.bath && r.laundry) lines.push('・入浴・洗濯');
         else if (r.bath) lines.push('・入浴');
@@ -1086,10 +1096,9 @@
         '</div>' +
         '<label class="toggle-row"><input type="checkbox" data-f="notUp"' + (r.notUp ? ' checked' : '') + '> 未起床（朝の時点）</label>' +
         '<div class="field"><span class="lbl">服薬</span><div class="meds">' + medHtml + '</div></div>' +
-        mealField(r, 'breakfast', '朝食') +
-        mealField(r, 'lunch', '昼食') +
-        mealField(r, 'dinner', '夕食') +
-        mealField(r, 'snack', 'おやつ') +
+        (curShift() === 'night'
+          ? mealField(r, 'dinner', '夕食') + mealField(r, 'snack', 'おやつ') + mealField(r, 'breakfast', '朝食') + mealField(r, 'lunch', '昼食')
+          : mealField(r, 'breakfast', '朝食') + mealField(r, 'lunch', '昼食') + mealField(r, 'dinner', '夕食') + mealField(r, 'snack', 'おやつ')) +
         '<div class="field"><span class="lbl">入浴・洗濯</span><div class="checks">' +
         '<label class="chip"><input type="checkbox" data-f="bath"' + (r.bath ? ' checked' : '') + '> 入浴</label>' +
         '<label class="chip"><input type="checkbox" data-f="laundry"' + (r.laundry ? ' checked' : '') + '> 洗濯</label>' +
