@@ -915,7 +915,7 @@
         if (r.unchanged) lines.push('・変わりなくお過ごしです。');
         if (r.notUp) lines.push('・朝の時点では、まだ起床されていませんでした。');
         else if (r.wake) lines.push('・起床 ' + formatTime(r.wake));
-        if (r.sleep) lines.push('・就寝 ' + formatTime(r.sleep));
+        if (r.sleep && draft.shift !== 'day') lines.push('・就寝 ' + formatTime(r.sleep));
 
         var medParts = [];
         MEDS.forEach(function (m) {
@@ -1076,7 +1076,7 @@
       return '<label class="toggle-row"><input type="checkbox" data-f="unchanged"' + (r.unchanged ? ' checked' : '') + '> 変わりなし</label>' +
         '<div class="row">' +
         '<div class="field"><label>起床時刻</label><input class="ctrl" type="time" lang="ja" data-f="wake" value="' + escapeHtml(r.wake || '') + '"' + (r.notUp ? ' disabled' : '') + '></div>' +
-        '<div class="field"><label>就寝時刻</label><input class="ctrl" type="time" lang="ja" data-f="sleep" value="' + escapeHtml(r.sleep || '') + '"></div>' +
+        (curShift() === 'day' ? '' : '<div class="field"><label>就寝時刻</label><input class="ctrl" type="time" lang="ja" data-f="sleep" value="' + escapeHtml(r.sleep || '') + '"></div>') +
         '</div>' +
         '<label class="toggle-row"><input type="checkbox" data-f="notUp"' + (r.notUp ? ' checked' : '') + '> 未起床（朝の時点）</label>' +
         '<div class="field"><span class="lbl">服薬</span><div class="meds">' + medHtml + '</div></div>' +
